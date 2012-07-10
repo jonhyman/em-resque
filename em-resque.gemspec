@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files  = [ "LICENSE", "README.markdown" ]
   s.rdoc_options      = ["--charset=UTF-8"]
 
-  s.add_dependency "resque", "~> 1.20.0"
+  s.add_dependency "resque", "~> 1.2"
   s.add_dependency "em-synchrony", "~> 1.0.0"
   s.add_dependency "em-redis", "~> 0.3.0"
 
