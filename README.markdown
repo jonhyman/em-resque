@@ -216,7 +216,7 @@ given a string or a Redis object. This means if you're already using
 Redis in your app, EM::Resquec an re-use the existing connection. 
 EM::Resque is using the non-blocking em-redis when given the host as a
 string. If using a Redis object, please use the non-blocking
-EM::Protocols::Redis.
+EM::Hiredis.
 
 String: `EM::Resque::WorkerMachine.new(opts.merge(:redis => 'localhost:6379'))`
 

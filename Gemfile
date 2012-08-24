@@ -4,7 +4,7 @@ gemspec
 
 group :test do
   gem "rake"
-  gem "em-redis"
+  gem "em-hiredis"
   gem "em-synchrony"
   gem "rack-test", "~> 0.5"
   gem "mocha", "~> 0.9.7"

@@ -33,6 +33,7 @@ module EventMachine
         @verbose = opts[:logging] || opts[:verbose] || false
         @very_verbose = opts[:vverbose] || false
         @pidfile = opts[:pidfile]
+        @redis_namespace = opts[:namespace] || :resque
         @redis_uri = opts[:redis] || "redis://127.0.0.1:6379"
 
         raise(ArgumentError, "Should have at least one fiber") if @fibers_count.to_i < 1
@@ -45,7 +46,7 @@ module EventMachine
       # Start the machine and start polling queues.
       def start
         EM.synchrony do
-          EM::Resque.initialize_redis(@redis_uri, @fibers_count)
+          EM::Resque.initialize_redis(@redis_uri, @redis_namespace, @fibers_count)
           trap_signals
           prune_dead_workers
           @fibers.each(&:resume)
