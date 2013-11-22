@@ -50,6 +50,7 @@ module EventMachine
 
       # Start the machine and start polling queues.
       def start
+        EM.epoll
         EM.synchrony do
           EM::Resque.initialize_redis(@redis_uri, @redis_namespace, @fibers_count)
           trap_signals
