@@ -42,32 +42,41 @@ class EventMachine::Resque::Worker < Resque::Worker
         next
       end
 
-      if not paused? and job = reserve
-        log "got: #{job.inspect}"
-        job.worker = self
-        run_hook :before_fork, job
-        working_on job
+      begin
+        if not paused? and job = reserve
+          log "got: #{job.inspect}"
+          job.worker = self
+          run_hook :before_fork, job
+          working_on job
 
-        if @child = fork
-          srand # Reseeding
-          procline "Forked #{@child} at #{Time.now.to_i}"
-          begin
-            Process.waitpid(@child)
-          rescue SystemCallError
-            nil
+          if @child = fork
+            srand # Reseeding
+            procline "Forked #{@child} at #{Time.now.to_i}"
+            begin
+              Process.waitpid(@child)
+            rescue SystemCallError
+              nil
+            end
+          else
+            unregister_signal_handlers if !@cant_fork && term_child
+            procline "Processing #{job.queue} since #{Time.now.to_i}"
+            redis.client.reconnect # Don't share connection with parent
+            perform(job, &block)
+            exit! unless @cant_fork
+            EM.next_tick(&work_loop)
           end
-        else
-          unregister_signal_handlers if !@cant_fork && term_child
-          procline "Processing #{job.queue} since #{Time.now.to_i}"
-          redis.client.reconnect # Don't share connection with parent
-          perform(job, &block)
-          exit! unless @cant_fork
-          EM.next_tick(&work_loop)
-        end
 
-        done_working
-        @child = nil
-      else
+          done_working
+          @child = nil
+        else
+          break if interval.zero?
+          log! "Sleeping for #{interval} seconds"
+          procline paused? ? "Paused" : "Waiting for #{@queues.join(',')}"
+          EM::Timer.new(interval) do
+            EM.next_tick(&work_loop)
+          end
+        end
+      rescue Redis::TimeoutError
         break if interval.zero?
         log! "Sleeping for #{interval} seconds"
         procline paused? ? "Paused" : "Waiting for #{@queues.join(',')}"
