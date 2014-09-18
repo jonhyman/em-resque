@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency "resque", "~> 1.2"
   s.add_dependency "em-synchrony", "~> 1.0.0"
-  s.add_dependency "em-hiredis", "~> 0.1.0"
+  s.add_dependency "em-hiredis", "~> 0.3.0"
 
   s.description = <<description
     Em-resque is a version of Resque, which offers non-blocking and non-forking
