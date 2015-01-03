@@ -60,7 +60,7 @@ class EventMachine::Resque::Worker < Resque::Worker
           else
             unregister_signal_handlers if !@cant_fork && term_child
             procline "Processing #{job.queue} since #{Time.now.to_i}"
-            redis.client.reconnect # Don't share connection with parent
+            redis.client.reconnect unless @cant_fork # Don't share connection with parent
             perform(job, &block)
             exit! unless @cant_fork
             EM.next_tick(&work_loop)
