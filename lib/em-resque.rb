@@ -1,6 +1,5 @@
 require 'resque'
 require 'em-synchrony'
-require 'em-hiredis'
 require 'em-synchrony/connection_pool'
 require 'uri'
 
@@ -9,9 +8,10 @@ module EM::Resque
 
   def self.initialize_redis(server, namespace = :resque, pool_size = 1)
     case server
-    when String
+      when String
+      uri = URI.parse(server)
       redis = EventMachine::Synchrony::ConnectionPool.new(:size => pool_size) do
-        EM::Hiredis.connect(server)
+        Redis.new(:host => uri.host, :port => uri.port, :password => uri.password)
       end
 
       Resque.redis = Redis::Namespace.new(namespace, :redis => redis)
